@@ -4,13 +4,17 @@ import (
 	"context"
 	"time"
 
+	"github.com/ahsansaif47/advanced-resume/config"
 	"github.com/ahsansaif47/advanced-resume/internal/parser"
-	"github.com/ahsansaif47/advanced-resume/internal/temporalio"
 	"github.com/ahsansaif47/advanced-resume/internal/temporalio/activities"
 	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/workflow"
 )
+
+// TODO: Integrate Params and Result into the workflow... best-practice
+// TODO: Testing
+// TODO: Return the user the result when the workflow completes...
 
 type StoreResumeInputParams struct {
 }
@@ -25,7 +29,6 @@ func StoreResumeToWeaviate(ctx workflow.Context, data any) (string, error) {
 	// Activity options
 	ao := workflow.ActivityOptions{
 		StartToCloseTimeout: time.Second * 10,
-		RetryPolicy:         nil,
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
@@ -50,7 +53,7 @@ func StoreResumeToWeaviate(ctx workflow.Context, data any) (string, error) {
 func ExecuteWorkflow_StoreResumeToWeaviate(c client.Client, data string) (string, error) {
 	options := client.StartWorkflowOptions{
 		ID:        "store-resume-workflow" + uuid.NewString(),
-		TaskQueue: temporalio.QueueName,
+		TaskQueue: config.QueueName,
 	}
 
 	r, err := c.ExecuteWorkflow(context.Background(), options, StoreResumeToWeaviate, data)

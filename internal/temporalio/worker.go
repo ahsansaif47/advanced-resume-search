@@ -3,14 +3,11 @@ package temporalio
 import (
 	"log"
 
+	"github.com/ahsansaif47/advanced-resume/config"
 	"github.com/ahsansaif47/advanced-resume/internal/temporalio/activities"
+	"github.com/ahsansaif47/advanced-resume/internal/temporalio/workflows"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-)
-
-var (
-	TemporalNamespace = "advanced-resume-parser"
-	QueueName         = "resume-processing-queue"
 )
 
 func StartWorker() (*client.Client, <-chan error) {
@@ -18,17 +15,20 @@ func StartWorker() (*client.Client, <-chan error) {
 
 	c, err := client.Dial(client.Options{
 		HostPort:  "localhost:7233",
-		Namespace: TemporalNamespace,
+		Namespace: config.TemporalNamespace,
 	})
 	if err != nil {
 		errCh <- err
 		return nil, errCh
 	}
 
-	resume_parser := worker.New(c, QueueName, worker.Options{})
+	resume_parser := worker.New(c, config.QueueName, worker.Options{})
+
 	resume_parser.RegisterActivity(activities.RunGeminiInference)
 	resume_parser.RegisterActivity(activities.RunOCRDataParsing)
 	resume_parser.RegisterActivity(activities.RunStoreResumeDataToWeaviate)
+
+	resume_parser.RegisterWorkflow(workflows.StoreResumeToWeaviate)
 
 	go func() {
 		log.Println("Worker started...")
