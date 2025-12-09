@@ -2,6 +2,7 @@ package gemini
 
 import (
 	"context"
+	"log"
 	"os"
 
 	"github.com/ahsansaif47/advanced-resume/config"
@@ -21,6 +22,7 @@ func NewGeminiClient() (IGeminiClient, error) {
 		APIKey: config.GetConfig().GeminiAPIKey,
 	})
 	if err != nil {
+		log.Println("Failed to instantiate genAI client! Err:", err.Error())
 		return nil, err
 	}
 
@@ -46,6 +48,7 @@ func (g *GeminiClient) GetResponse(path string) (string, error) {
 	}
 
 	contents := []*genai.Content{
+
 		genai.NewContentFromParts(parts, genai.RoleUser),
 	}
 
@@ -57,6 +60,7 @@ func (g *GeminiClient) GetResponse(path string) (string, error) {
 		nil,
 	)
 	if err != nil {
+		log.Println("Got error from genAI client! Err:", err.Error())
 		return "", err
 	}
 
