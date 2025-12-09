@@ -1,0 +1,5 @@
+.env
+.pdf
+.vscode
+tmp/*
+resources/*
