@@ -8,28 +8,34 @@ import (
 	"go.temporal.io/sdk/worker"
 )
 
-func start_worker() *client.Client {
-	c, err := client.Dial(client.Options{
-		HostPort:  "",
-		Namespace: "Advanced-resume-parser",
+var (
+	TemporalNamespace = "advanced-resume-parser"
+	QueueName         = "resume-processing-queue"
+)
 
-		// Credentials: client.NewMTLSCredentials(tls.Certificate{}),
+func StartWorker() (*client.Client, <-chan error) {
+	errCh := make(chan error, 1)
+
+	c, err := client.Dial(client.Options{
+		HostPort:  "localhost:7233",
+		Namespace: TemporalNamespace,
 	})
 	if err != nil {
-		log.Fatalln("Unable to create client:", err)
+		errCh <- err
+		return nil, errCh
 	}
 
-	process_resume_worker := worker.New(c, "resume-processing-queue", worker.Options{})
+	resume_parser := worker.New(c, QueueName, worker.Options{})
+	resume_parser.RegisterActivity(activities.RunGeminiInference)
+	resume_parser.RegisterActivity(activities.RunOCRDataParsing)
+	resume_parser.RegisterActivity(activities.RunStoreResumeDataToWeaviate)
 
-	process_resume_worker.RegisterActivity(activities.RunGeminiInference)
-	process_resume_worker.RegisterActivity(activities.RunOCRDataParsing)
-	process_resume_worker.RegisterActivity(activities.RunStoreResumeDataToWeaviate)
+	go func() {
+		log.Println("Worker started...")
+		if err := resume_parser.Run(worker.InterruptCh()); err != nil {
+			errCh <- err
+		}
+	}()
+	return &c, errCh
 
-	log.Println("Worker started...")
-	err = process_resume_worker.Run(worker.InterruptCh())
-	if err != nil {
-		log.Fatalln("Unable to start worker:", err)
-	}
-
-	return &c
 }

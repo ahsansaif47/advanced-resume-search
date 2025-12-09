@@ -11,18 +11,35 @@ import (
 	"github.com/ahsansaif47/advanced-resume/integrations/gemini"
 	"github.com/ahsansaif47/advanced-resume/internal/parser"
 	"github.com/ahsansaif47/advanced-resume/internal/storage/weaviate"
+	"github.com/ahsansaif47/advanced-resume/internal/temporalio"
+	"go.temporal.io/sdk/client"
 )
 
 var className = "Resume"
 
 func main() {
+
 	c, err := gemini.NewGeminiClient()
 	if err != nil {
 		log.Panic("Err creating genAI client. Err: ", err.Error())
 	}
-	log.Println("Client created")
 	weaviateClient := weaviate.ConnectWeaviate()
 	weaviate.CreateSchema(weaviateClient, className)
+
+	tempClient, errCh := temporalio.StartWorker()
+	go func(client *client.Client) {
+		for err := range errCh {
+			log.Printf("Worker error: %v", err)
+
+			// We need to use retry here to fail incase there is some connectivity error.
+			// if errors.Is(err, <connection-error>), then log.Fatal...
+			(*client).Close()
+			client, errCh = temporalio.StartWorker()
+		}
+	}(tempClient)
+
+	print(<-errCh) // doing this temporarily... upper logic is the correct one though incomplete
+	defer (*tempClient).Close()
 
 	repo := weaviate.NewWeviateRepository(context.Background(), weaviateClient)
 

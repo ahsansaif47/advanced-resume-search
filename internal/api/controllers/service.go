@@ -1,15 +1,15 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"mime/multipart"
 
 	"github.com/ahsansaif47/advanced-resume/integrations/gemini"
-	"github.com/ahsansaif47/advanced-resume/internal/parser"
 	"github.com/ahsansaif47/advanced-resume/internal/storage/weaviate"
+	"github.com/ahsansaif47/advanced-resume/internal/temporalio/workflows"
 	"github.com/ahsansaif47/advanced-resume/utils"
 	"github.com/gofiber/fiber/v2"
+	"go.temporal.io/sdk/client"
 )
 
 type IWeaviateService interface {
@@ -19,14 +19,17 @@ type IWeaviateService interface {
 }
 
 type WeaviateService struct {
-	repo         weaviate.IWeaviateRepository
-	GeminiClient gemini.IGeminiClient
+	repo           weaviate.IWeaviateRepository
+	GeminiClient   gemini.IGeminiClient
+	TemporalClient *client.Client
 }
 
-func NewWeaviateService(repo weaviate.IWeaviateRepository, client gemini.IGeminiClient) IWeaviateService {
+// FIXME: Use Interfaces for temporal client!!
+func NewWeaviateService(repo weaviate.IWeaviateRepository, genAIclient gemini.IGeminiClient, temporalClient *client.Client) IWeaviateService {
 	return &WeaviateService{
-		repo:         repo,
-		GeminiClient: client,
+		repo:           repo,
+		GeminiClient:   genAIclient,
+		TemporalClient: temporalClient,
 	}
 }
 
@@ -52,55 +55,57 @@ func (s *WeaviateService) AddResumeToDB(ctx *fiber.Ctx, resumeFile *multipart.Fi
 
 	resumePath := fmt.Sprintf("../../resources/pdfs/%s", sanitizedFName)
 
-	// Temp Workflow
+	// // Temp Workflow
 
-	// Activity: Extract Resume Info
-	resumeData, err := s.GeminiClient.GetResponse(resumePath) // 6s
-	if err != nil {
-		return InternalServerError, "", fmt.Errorf("Error in OCR: %s", err.Error())
-	}
-
-	// Clean data
-	cleanedData := parser.CleanJSON(resumeData)
-
-	// Parse into obj
-	data, err := parser.ParseResume([]byte(cleanedData))
-	if err != nil {
-		return InternalServerError, "", fmt.Errorf("Error parsing resume: %s", err.Error())
-	}
-
-	var bytesData []byte
-	if bytesData, err = json.MarshalIndent(data, "", ""); err != nil {
-		return InternalServerError, "", fmt.Errorf("Error marshalling data: %s", err.Error())
-	}
-
-	// splits := strings.Split(resumePath, "/")
-	// fPath := fmt.Sprintf("../../tmp/%s", strings.Replace(fmt.Sprintf("%s", splits[len(splits)-1]), ".pdf", ".json", -1))
-
-	// // Create or open file
-	// file, err := os.Create(fPath)
+	// // Activity: Extract Resume Info
+	// resumeData, err := s.GeminiClient.GetResponse(resumePath) // 6s
 	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer file.Close()
-
-	// // Write bytes directly
-	// _, err = file.Write(bytesData)
-	// if err != nil {
-	// 	log.Fatal(err)
+	// 	return InternalServerError, "", fmt.Errorf("Error in OCR: %s", err.Error())
 	// }
 
-	var requiredData map[string]any
-	if err := json.Unmarshal(bytesData, &requiredData); err != nil {
-		return InternalServerError, "", fmt.Errorf("Error unmarshalling data: %s", err.Error())
-	}
+	// // Clean data
+	// cleanedData := parser.CleanJSON(resumeData)
 
-	id, err := s.repo.AddResumeToDB("resume", requiredData)
-	if err != nil {
-		return InternalServerError, "", fmt.Errorf("Error uploading resume: %s", err.Error())
-	}
+	// // Parse into obj
+	// data, err := parser.ParseResume([]byte(cleanedData))
+	// if err != nil {
+	// 	return InternalServerError, "", fmt.Errorf("Error parsing resume: %s", err.Error())
+	// }
 
-	return StatusAccepted, id, nil
+	// var bytesData []byte
+	// if bytesData, err = json.MarshalIndent(data, "", ""); err != nil {
+	// 	return InternalServerError, "", fmt.Errorf("Error marshalling data: %s", err.Error())
+	// }
+
+	// // splits := strings.Split(resumePath, "/")
+	// // fPath := fmt.Sprintf("../../tmp/%s", strings.Replace(fmt.Sprintf("%s", splits[len(splits)-1]), ".pdf", ".json", -1))
+
+	// // // Create or open file
+	// // file, err := os.Create(fPath)
+	// // if err != nil {
+	// // 	log.Fatal(err)
+	// // }
+	// // defer file.Close()
+
+	// // // Write bytes directly
+	// // _, err = file.Write(bytesData)
+	// // if err != nil {
+	// // 	log.Fatal(err)
+	// // }
+
+	// var requiredData map[string]any
+	// if err := json.Unmarshal(bytesData, &requiredData); err != nil {
+	// 	return InternalServerError, "", fmt.Errorf("Error unmarshalling data: %s", err.Error())
+	// }
+
+	// id, err := s.repo.AddResumeToDB("resume", requiredData)
+	// if err != nil {
+	// 	return InternalServerError, "", fmt.Errorf("Error uploading resume: %s", err.Error())
+	// }
+
+	workflow_id, err := workflows.ExecuteWorkflow_StoreResumeToWeaviate(*s.TemporalClient, resumePath)
+
+	return StatusAccepted, workflow_id, nil
 }
 
 func (s *WeaviateService) BatchUploadResume(batchResume []map[string]any) (int, error) {
