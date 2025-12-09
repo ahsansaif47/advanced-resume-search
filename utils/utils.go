@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -48,4 +49,21 @@ func SanitizeFileName(name string) string {
 	name = re.ReplaceAllString(name, "-")
 	name = strings.Trim(name, "-")
 	return name
+}
+
+func SaveResumeDataJson(id string, bytesData []byte) {
+	fPath := fmt.Sprintf("../../tmp/%s.json", id)
+
+	// Create or open file
+	file, err := os.Create(fPath)
+	if err != nil {
+		log.Fatal("Failed to create file! Err: ", err)
+	}
+	defer file.Close()
+
+	// Write bytes directly
+	_, err = file.Write(bytesData)
+	if err != nil {
+		log.Fatal("Failed saving the file! Err: ", err)
+	}
 }
