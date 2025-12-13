@@ -9,16 +9,22 @@ type Handler struct {
 	service controllers.IWeaviateService
 }
 
+func NewHandlers(service controllers.IWeaviateService) *Handler {
+	return &Handler{
+		service: service,
+	}
+}
+
 // UploadResume godoc
 // @Summary 	Add a new resume
 // @Description Stores a single resume object in the database/vector DB
 // @Tags 		Resume
-// @Accept 		json
+// @Accept 		multipart/form-data
 // @Produce 	json
-// @Param 		resume 	body 	object 	true 	"Resume data (dynamic fields)"
-// @Success 	201 	{object} 	map[string]any 		"ID of inserted resume"
-// @Failure 	400 	{object} 	map[string]string 	"Invalid request body"
-// @Failure 	500 	{object} 	map[string]string 	"Internal Server Error"
+// @Param 		file 	body 		object 		true 	"Resume data (dynamic fields)"
+// @Success 	201 	{object} 	fiber.Map 		"ID of inserted resume"
+// @Failure 	400 	{object} 	fiber.Error 	"Invalid file or request"
+// @Failure 	500 	{object} 	fiber.Error 	"Internal Server Error"
 // @Router 		/upload [post]
 func (h *Handler) UploadResume(ctx *fiber.Ctx) error {
 
@@ -68,6 +74,17 @@ func (h *Handler) BatchUploadResume(ctx *fiber.Ctx) error {
 	})
 }
 
+// SearchTalent godoc
+// @Summary 	Search a resume
+// @Description Search related talent
+// @Tags 		Resume
+// @Accept
+// @Produce 	json
+// @Param 		query 	search-query 		string 			true 	"Resume data (dynamic fields)"
+// @Success 	201 	{object} 			fiber.Map 				"ID of inserted resume"
+// @Failure 	400 	{object} 			fiber.Error 			"Invalid file or request"
+// @Failure 	500 	{object} 			fiber.Error 			"Internal Server Error"
+// @Router 		/search [get]
 func (h *Handler) VectorSearch(ctx *fiber.Ctx) error {
 	query := ctx.Query("query")
 	if query == "" {

@@ -10,6 +10,7 @@ import (
 )
 
 type Config struct {
+	Port         string
 	GeminiAPIKey string
 }
 
@@ -32,6 +33,7 @@ func loadConfig() (Config, error) {
 	err := godotenv.Load(filepath.Join("..", "..", ".env"))
 
 	return Config{
+		Port:         os.Getenv("PORT"),
 		GeminiAPIKey: os.Getenv("GEMINI_API_KEY"),
 	}, err
 
