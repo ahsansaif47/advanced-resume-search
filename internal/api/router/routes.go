@@ -2,7 +2,6 @@ package router
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/ahsansaif47/advanced-resume/integrations/gemini"
@@ -24,13 +23,11 @@ import (
 // @securityDefinitions.apikey	BearerAuth
 // @in							header
 // @name						Authorization
-func InitRoutes(app *fiber.App, db *weaviate.Client, tempClient *client.Client) {
+func InitRoutes(app *fiber.App, db *weaviate.Client, tempClient client.Client) {
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
-
-	fmt.Println("API V1: ", v1)
 
 	aiClient, err := gemini.NewGeminiClient()
 	if err != nil {

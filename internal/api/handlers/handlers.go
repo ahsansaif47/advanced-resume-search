@@ -16,19 +16,20 @@ func NewHandlers(service controllers.IWeaviateService) *Handler {
 }
 
 // UploadResume godoc
-// @Summary 	Add a new resume
-// @Description Stores a single resume object in the database/vector DB
-// @Tags 		Resume
-// @Accept 		multipart/form-data
-// @Produce 	json
-// @Param 		file 	body 		object 		true 	"Resume data (dynamic fields)"
-// @Success 	201 	{object} 	fiber.Map 		"ID of inserted resume"
-// @Failure 	400 	{object} 	fiber.Error 	"Invalid file or request"
-// @Failure 	500 	{object} 	fiber.Error 	"Internal Server Error"
-// @Router 		/upload [post]
+//
+//	@Summary		Add a new resume
+//	@Description	Stores a single resume object in the database/vector DB
+//	@Tags			Resume
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			file	formData	file				true	"Resume file (PDF/DOCX)"
+//	@Success		201		{object}	map[string]string	"ID of inserted resume"
+//	@Failure		400		{object}	fiber.Error			"Invalid file or request"
+//	@Failure		500		{object}	fiber.Error			"Internal Server Error"
+//	@Router			/upload [post]
 func (h *Handler) UploadResume(ctx *fiber.Ctx) error {
 
-	file, err := ctx.FormFile("document")
+	file, err := ctx.FormFile("file")
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Error": err.Error(),
@@ -43,16 +44,17 @@ func (h *Handler) UploadResume(ctx *fiber.Ctx) error {
 }
 
 // BatchUploadResume 	godoc
-// @Summary 		Add multiple resumes (batch)
-// @Description 	Inserts multiple resumes using Weaviate batch API
-// @Tags 			Resume
-// @Accept json
-// @Produce json
-// @Param resumes body []object true "Array of resume objects"
-// @Success 201 {object} map[string]string "Added resumes"
-// @Failure 400 {object} map[string]string "Invalid request body"
-// @Failure 500 {object} map[string]string "Internal Server Error"
-// @Router /upload/batch [post]
+//
+//	@Summary		Add multiple resumes (batch)
+//	@Description	Inserts multiple resumes using Weaviate batch API
+//	@Tags			Resume
+//	@Accept			json
+//	@Produce		json
+//	@Param			resumes	body		[]object			true	"Array of resume objects"
+//	@Success		201		{object}	map[string]string	"Added resumes"
+//	@Failure		400		{object}	map[string]string	"Invalid request body"
+//	@Failure		500		{object}	map[string]string	"Internal Server Error"
+//	@Router			/upload/batch [post]
 func (h *Handler) BatchUploadResume(ctx *fiber.Ctx) error {
 	var req []map[string]any
 
@@ -75,16 +77,17 @@ func (h *Handler) BatchUploadResume(ctx *fiber.Ctx) error {
 }
 
 // SearchTalent godoc
-// @Summary 	Search a resume
-// @Description Search related talent
-// @Tags 		Resume
-// @Accept
-// @Produce 	json
-// @Param 		query 	search-query 		string 			true 	"Resume data (dynamic fields)"
-// @Success 	201 	{object} 			fiber.Map 				"ID of inserted resume"
-// @Failure 	400 	{object} 			fiber.Error 			"Invalid file or request"
-// @Failure 	500 	{object} 			fiber.Error 			"Internal Server Error"
-// @Router 		/search [get]
+//
+//	@Summary		Search a resume
+//	@Description	Search related talent
+//	@Tags			Resume
+//	@Accept			json
+//	@Produce		json
+//	@Param			query	query		string		true	"Talent data"
+//	@Success		201		{object}	fiber.Map	"Talent"
+//	@Failure		400		{object}	fiber.Error	"Invalid request"
+//	@Failure		500		{object}	fiber.Error	"Internal Server Error"
+//	@Router			/search [get]
 func (h *Handler) VectorSearch(ctx *fiber.Ctx) error {
 	query := ctx.Query("query")
 	if query == "" {

@@ -7,12 +7,12 @@ import (
 	"github.com/ahsansaif47/advanced-resume/integrations/gemini"
 )
 
-var genClient gemini.IGeminiClient
+// var genClient gemini.IGeminiClient
 
 func RunGeminiInference(ctx context.Context, path string) (string, error) {
 
-	var err error
-	genClient, err = gemini.NewGeminiClient()
+	// var err error
+	genClient, err := gemini.NewGeminiClient()
 	if err != nil {
 		return "", err
 	}

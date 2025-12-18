@@ -21,11 +21,15 @@ type IWeaviateService interface {
 type WeaviateService struct {
 	repo           weaviate.IWeaviateRepository
 	GeminiClient   gemini.IGeminiClient
-	TemporalClient *client.Client
+	TemporalClient client.Client
 }
 
 // FIXME: Use Interfaces for temporal client!!
-func NewWeaviateService(repo weaviate.IWeaviateRepository, genAIclient gemini.IGeminiClient, temporalClient *client.Client) IWeaviateService {
+func NewWeaviateService(
+	repo weaviate.IWeaviateRepository,
+	genAIclient gemini.IGeminiClient,
+	temporalClient client.Client,
+) IWeaviateService {
 	return &WeaviateService{
 		repo:           repo,
 		GeminiClient:   genAIclient,
@@ -103,7 +107,7 @@ func (s *WeaviateService) AddResumeToDB(ctx *fiber.Ctx, resumeFile *multipart.Fi
 	// 	return InternalServerError, "", fmt.Errorf("Error uploading resume: %s", err.Error())
 	// }
 
-	workflow_id, err := workflows.ExecuteWorkflow_StoreResumeToWeaviate(*s.TemporalClient, resumePath)
+	workflow_id, err := workflows.ExecuteWorkflow_StoreResumeToWeaviate(s.TemporalClient, resumePath)
 
 	return StatusAccepted, workflow_id, nil
 }

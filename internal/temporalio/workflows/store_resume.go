@@ -7,8 +7,8 @@ import (
 	"github.com/ahsansaif47/advanced-resume/config"
 	"github.com/ahsansaif47/advanced-resume/internal/parser"
 	"github.com/ahsansaif47/advanced-resume/internal/temporalio/activities"
-	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
@@ -22,18 +22,22 @@ type StoreResumeInputParams struct {
 type StoreResumeResult struct {
 }
 
-func StoreResumeToWeaviate(ctx workflow.Context, data any) (string, error) {
-	logger := workflow.GetLogger(ctx)
-	logger.Info("Store Resume Workflow started")
+func StoreResumeToWeaviate(ctx workflow.Context, data string) (string, error) {
+	// logger := workflow.GetLogger(ctx)
+	// logger.Info("Store Resume Workflow started")
 
 	// Activity options
 	ao := workflow.ActivityOptions{
-		StartToCloseTimeout: time.Second * 10,
+		StartToCloseTimeout: time.Minute * 3,
+		RetryPolicy: &temporal.RetryPolicy{
+			MaximumAttempts:    5,
+			BackoffCoefficient: 2.0,
+		},
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
 	var ocrResult string
-	if err := workflow.ExecuteActivity(ctx, activities.RunGeminiInference, nil).Get(ctx, &ocrResult); err != nil {
+	if err := workflow.ExecuteActivity(ctx, activities.RunGeminiInference, data).Get(ctx, &ocrResult); err != nil {
 		return "", err
 	}
 
@@ -51,12 +55,17 @@ func StoreResumeToWeaviate(ctx workflow.Context, data any) (string, error) {
 }
 
 func ExecuteWorkflow_StoreResumeToWeaviate(c client.Client, data string) (string, error) {
-	options := client.StartWorkflowOptions{
-		ID:        "store-resume-workflow" + uuid.NewString(),
-		TaskQueue: config.QueueName,
-	}
+	// options := client.StartWorkflowOptions{
+	// 	// ID:                    "store-resume-workflow" + uuid.NewString(),
+	// 	TaskQueue: config.QueueName,
+	// 	// WorkflowIDReusePolicy: enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+	// }
 
-	r, err := c.ExecuteWorkflow(context.Background(), options, StoreResumeToWeaviate, data)
+	r, err := c.ExecuteWorkflow(
+		context.Background(),
+		client.StartWorkflowOptions{
+			TaskQueue: config.QueueName,
+		}, StoreResumeToWeaviate, data)
 	if err != nil {
 		return "", err
 	}

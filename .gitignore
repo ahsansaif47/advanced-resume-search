@@ -3,3 +3,5 @@
 .vscode
 tmp
 resources
+
+internal/api/docs

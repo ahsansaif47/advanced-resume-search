@@ -10,12 +10,12 @@ import (
 	"go.temporal.io/sdk/worker"
 )
 
-func StartWorker() (*client.Client, <-chan error) {
+func StartWorker() (client.Client, <-chan error) {
 	errCh := make(chan error, 1)
 
 	c, err := client.Dial(client.Options{
 		HostPort:  "localhost:7233",
-		Namespace: config.TemporalNamespace,
+		// Namespace: config.TemporalNamespace,
 	})
 	if err != nil {
 		errCh <- err
@@ -36,6 +36,6 @@ func StartWorker() (*client.Client, <-chan error) {
 			errCh <- err
 		}
 	}()
-	return &c, errCh
+	return c, errCh
 
 }

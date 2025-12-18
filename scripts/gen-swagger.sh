@@ -1,12 +1,15 @@
-# !/bin/sh
+#!/bin/sh
 set -eu
 
-src_dir=$(dirname "$0")/..
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-echo "Generating Swagger docs.."
+echo "Generating Swagger docs..."
 
 swag init \
-    --generalInfo "../meals-service/http/routes/router.go" \
-    --output "./docs" \
-    --outputTypes go,json,yaml \
-    --parseDependency --parseInternal --parseDepth 1
+  --dir "$PROJECT_ROOT" \
+  --generalInfo "internal/api/router/routes.go" \
+  --output "internal/api/docs" \
+  --outputTypes go,json,yaml \
+  --parseDependency \
+  --parseInternal \
+  --parseDepth 1
