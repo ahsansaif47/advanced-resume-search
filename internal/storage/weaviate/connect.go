@@ -2,6 +2,7 @@ package weaviate
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 
@@ -20,14 +21,15 @@ var once sync.Once
 
 func GetDatabaseConnection() *Database {
 	once.Do(func() {
+		client, _ := ConnectWeaviate()
 		dbInstance = &Database{
-			Client: ConnectWeaviate(),
+			Client: client,
 		}
 	})
 	return dbInstance
 }
 
-func ConnectWeaviate() *weaviate.Client {
+func ConnectWeaviate() (*weaviate.Client, error) {
 	cfg := weaviate.Config{
 		Host:   "localhost:8081",
 		Scheme: "http",
@@ -35,19 +37,22 @@ func ConnectWeaviate() *weaviate.Client {
 
 	client, err := weaviate.NewClient(cfg)
 	if err != nil {
-		log.Fatalf("error creating weaviate client: %v", err)
+		return nil, fmt.Errorf("creating weaviate client: %s", err.Error())
+		// log.Fatalf("error creating weaviate client: %v", err)
 	}
 
 	live, err := client.Misc().LiveChecker().Do(context.Background())
 	if err != nil {
-		log.Fatalf("error checking live status of weaviate: %v", err)
+		return nil, fmt.Errorf("checking weaviate live status: %s", err.Error())
+		// log.Fatalf("error checking live status of weaviate: %v", err)
 	}
 
 	if !live {
-		log.Fatal("Error connecting to weaviate!")
+		return nil, fmt.Errorf("weaviate is not live")
+		// log.Fatal("Error connecting to weaviate!")
 	}
 
-	return client
+	return client, nil
 }
 
 func CreateSchema(c *weaviate.Client, className string) {
@@ -65,31 +70,46 @@ func CreateSchema(c *weaviate.Client, className string) {
 			{
 				Name:     "personal_information",
 				DataType: schema.DataTypeObject.PropString(),
-				// NestedProperties: []*models.NestedProperty{},
+				NestedProperties: []*models.NestedProperty{
+					{Name: "name", DataType: schema.DataTypeText.PropString()},
+					{Name: "email", DataType: schema.DataTypeText.PropString()},
+				},
 			},
 			{
 				Name:     "education",
 				DataType: schema.DataTypeObjectArray.PropString(),
+				NestedProperties: []*models.NestedProperty{
+					{Name: "institution", DataType: schema.DataTypeText.PropString()},
+					{Name: "degree", DataType: schema.DataTypeBlob.PropString()},
+					{Name: "dates", DataType: schema.DataTypeText.PropString()},
+				},
 			},
 			{
 				Name:     "work_experience",
 				DataType: schema.DataTypeObjectArray.PropString(),
+				NestedProperties: []*models.NestedProperty{
+					{Name: "company", DataType: schema.DataTypeText.PropString()},
+					{Name: "title", DataType: schema.DataTypeText.PropString()},
+					{Name: "dates", DataType: schema.DataTypeText.PropString()},
+					{Name: "description", DataType: schema.DataTypeText.PropString()},
+				},
 			},
 			{
 				Name:     "skills",
 				DataType: schema.DataTypeStringArray.PropString(),
 			},
-			{
-				Name:     "extra",
-				DataType: schema.DataTypeObject.PropString(),
-			},
 		},
 		VectorIndexType: "hnsw",
 	}
 
-	if exists, err := c.Schema().ClassExistenceChecker().WithClassName(className).Do(context.Background()); err != nil && !exists {
-		err := c.Schema().ClassCreator().WithClass(resumeClass).Do(context.Background())
-		if err != nil {
+	if exists, err := c.Schema().
+		ClassExistenceChecker().
+		WithClassName(className).
+		Do(context.Background()); err != nil && !exists {
+		if err := c.Schema().
+			ClassCreator().
+			WithClass(resumeClass).
+			Do(context.Background()); err != nil {
 			log.Fatalf("error creating class: %v", err.Error())
 		}
 	}
