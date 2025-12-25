@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/ahsansaif47/advanced-resume/config"
-	"github.com/ahsansaif47/advanced-resume/internal/parser"
-	"github.com/ahsansaif47/advanced-resume/internal/temporalio/activities"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
@@ -37,19 +35,26 @@ func StoreResumeToWeaviate(ctx workflow.Context, data string) (string, error) {
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
 	var ocrResult string
-	if err := workflow.ExecuteActivity(ctx, activities.RunGeminiInference, data).Get(ctx, &ocrResult); err != nil {
-		return "", err
-	}
-
-	var resume parser.Resume
-	if err := workflow.ExecuteActivity(ctx, activities.RunOCRDataParsing, ocrResult).Get(ctx, &resume); err != nil {
+	if err := workflow.ExecuteActivity(
+		ctx,
+		"RunGeminiInference",
+		data,
+	).Get(ctx, &ocrResult); err != nil {
 		return "", err
 	}
 
 	var inserted_obj_id string
-	if err := workflow.ExecuteActivity(ctx, activities.RunStoreResumeDataToWeaviate, resume).Get(ctx, &inserted_obj_id); err != nil {
+	if err := workflow.ExecuteActivity(ctx,
+		"ParseAndStoreData",
+		ocrResult,
+	).Get(ctx, &inserted_obj_id); err != nil {
 		return "", err
 	}
+
+	// var inserted_obj_id string
+	// if err := workflow.ExecuteActivity(ctx, activities.RunStoreResumeDataToWeaviate, resume).Get(ctx, &inserted_obj_id); err != nil {
+	// 	return "", err
+	// }
 
 	return inserted_obj_id, nil
 }

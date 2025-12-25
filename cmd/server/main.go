@@ -29,7 +29,10 @@ func main() {
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
 
-	weaviateClient := weaviate.ConnectWeaviate()
+	weaviateClient, err := weaviate.ConnectWeaviate()
+	if err != nil {
+		log.Fatalf("error connecting to weaviate: %s", err.Error())
+	}
 	weaviate.CreateSchema(weaviateClient, className)
 
 	tempClient, errCh := temporalio.StartWorker()

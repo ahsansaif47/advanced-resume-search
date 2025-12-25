@@ -9,7 +9,7 @@ import (
 
 // var genClient gemini.IGeminiClient
 
-func RunGeminiInference(ctx context.Context, path string) (string, error) {
+func (a *Activities) RunGeminiInference(ctx context.Context, path string) (string, error) {
 
 	// var err error
 	genClient, err := gemini.NewGeminiClient()
