@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mime/multipart"
 
+	"github.com/ahsansaif47/advanced-resume/config"
 	"github.com/ahsansaif47/advanced-resume/integrations/gemini"
 	"github.com/ahsansaif47/advanced-resume/internal/storage/weaviate"
 	"github.com/ahsansaif47/advanced-resume/internal/temporalio/workflows"
@@ -65,7 +66,7 @@ func (s *WeaviateService) AddResumeToDB(ctx *fiber.Ctx, resumeFile *multipart.Fi
 }
 
 func (s *WeaviateService) BatchUploadResume(batchResume []map[string]any) (int, error) {
-	err := s.repo.BatchUploadResume("resume", batchResume)
+	err := s.repo.BatchUploadResume(config.ClassName, batchResume)
 	if err != nil {
 		return InternalServerError, fmt.Errorf("Error while batch uploading: %s", err.Error())
 	}
@@ -74,7 +75,7 @@ func (s *WeaviateService) BatchUploadResume(batchResume []map[string]any) (int, 
 }
 
 func (s *WeaviateService) VectorSearch(query string) (int, any, error) {
-	data, err := s.repo.VectorSearch("Resume", query)
+	data, err := s.repo.VectorSearch(config.ClassName, query)
 	if err != nil {
 		return InternalServerError, nil, fmt.Errorf("Error searchinh: %s", err.Error())
 	}

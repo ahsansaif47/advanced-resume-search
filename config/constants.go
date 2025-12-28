@@ -1,6 +1,7 @@
 package config
 
 var (
-	TemporalNamespace = "advanced-resume-parser"
-	QueueName         = "resume-processing-queue"
+	TemporalNamespace     = "advanced-resume-parser"
+	ResumeProcessingQueue = "resume-processing-queue"
+	ClassName             = "Resume"
 )

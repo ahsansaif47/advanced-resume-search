@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/ahsansaif47/advanced-resume/config"
 	"github.com/ahsansaif47/advanced-resume/internal/parser"
 	"github.com/ahsansaif47/advanced-resume/internal/storage/weaviate"
 )
@@ -34,7 +35,7 @@ func (a *Activities) ParseAndStoreData(ctx context.Context, resumeText string) (
 	// NOTE: Sanitize the map before inserting data into weaviate..
 	resumeMapData = sanitizeMap(resumeMapData)
 
-	id, err := repo.AddResumeToDB("Resume", resumeMapData)
+	id, err := repo.AddResumeToDB(config.ClassName, resumeMapData)
 	if err != nil {
 		return "", fmt.Errorf("Error uploading resume: %s", err.Error())
 	}

@@ -29,7 +29,7 @@ func StartWorker() (client.Client, <-chan error) {
 		errCh <- err
 	}
 
-	resume_parser := worker.New(c, config.QueueName, worker.Options{})
+	resume_parser := worker.New(c, config.ResumeProcessingQueue, worker.Options{})
 
 	resume_parser.RegisterActivityWithOptions(
 		acts.RunGeminiInference,
@@ -44,7 +44,6 @@ func StartWorker() (client.Client, <-chan error) {
 			Name: "ParseAndStoreData",
 		},
 	)
-	// resume_parser.RegisterActivity(activities.RunStoreResumeDataToWeaviate)
 
 	resume_parser.RegisterWorkflow(workflows.StoreResumeToWeaviate)
 

@@ -58,7 +58,7 @@ func ExecuteWorkflow_StoreResumeToWeaviate(c client.Client, data string) (string
 	r, err := c.ExecuteWorkflow(
 		context.Background(),
 		client.StartWorkflowOptions{
-			TaskQueue: config.QueueName,
+			TaskQueue: config.ResumeProcessingQueue,
 		}, StoreResumeToWeaviate, data)
 	if err != nil {
 		return "", err

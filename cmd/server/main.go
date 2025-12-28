@@ -18,8 +18,6 @@ import (
 // NOTE: Start temporal with the command below before running tests...
 // temporal server start-dev --ui-port 8080
 
-var className = "Resume"
-
 func main() {
 
 	app := fiber.New()
@@ -32,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error connecting to weaviate: %s", err.Error())
 	}
-	weaviate.CreateSchema(weaviateClient, className)
+	weaviate.CreateSchema(weaviateClient, config.ClassName)
 
 	tempClient, errCh := temporalio.StartWorker()
 	go func(client client.Client) {
