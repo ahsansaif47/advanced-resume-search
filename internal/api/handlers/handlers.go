@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log"
+
 	"github.com/ahsansaif47/advanced-resume/internal/api/controllers"
 	"github.com/gofiber/fiber/v2"
 )
@@ -92,10 +94,11 @@ func (h *Handler) VectorSearch(ctx *fiber.Ctx) error {
 	query := ctx.Query("query")
 	if query == "" {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"Error": "Query cann't be empty",
+			"Error": "Query can not be empty",
 		})
 	}
 
+	log.Println("Query: ", query)
 	status, data, err := h.service.VectorSearch(query)
 	if err != nil {
 		return ctx.Status(status).JSON(fiber.Map{

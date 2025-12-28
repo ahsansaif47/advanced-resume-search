@@ -51,21 +51,10 @@ func StoreResumeToWeaviate(ctx workflow.Context, data string) (string, error) {
 		return "", err
 	}
 
-	// var inserted_obj_id string
-	// if err := workflow.ExecuteActivity(ctx, activities.RunStoreResumeDataToWeaviate, resume).Get(ctx, &inserted_obj_id); err != nil {
-	// 	return "", err
-	// }
-
 	return inserted_obj_id, nil
 }
 
 func ExecuteWorkflow_StoreResumeToWeaviate(c client.Client, data string) (string, error) {
-	// options := client.StartWorkflowOptions{
-	// 	// ID:                    "store-resume-workflow" + uuid.NewString(),
-	// 	TaskQueue: config.QueueName,
-	// 	// WorkflowIDReusePolicy: enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
-	// }
-
 	r, err := c.ExecuteWorkflow(
 		context.Background(),
 		client.StartWorkflowOptions{

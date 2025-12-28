@@ -80,7 +80,7 @@ func CreateSchema(c *weaviate.Client, className string) {
 				DataType: schema.DataTypeObjectArray.PropString(),
 				NestedProperties: []*models.NestedProperty{
 					{Name: "institution", DataType: schema.DataTypeText.PropString()},
-					{Name: "degree", DataType: schema.DataTypeBlob.PropString()},
+					{Name: "degree", DataType: schema.DataTypeText.PropString()},
 					{Name: "dates", DataType: schema.DataTypeText.PropString()},
 				},
 			},

@@ -8,7 +8,6 @@ import (
 	"github.com/ahsansaif47/advanced-resume/internal/api/router"
 	"github.com/ahsansaif47/advanced-resume/internal/storage/weaviate"
 	"github.com/ahsansaif47/advanced-resume/internal/temporalio"
-	"github.com/ahsansaif47/advanced-resume/internal/temporalio/workflows"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.temporal.io/sdk/client"
@@ -52,7 +51,5 @@ func main() {
 
 	router.InitRoutes(app, weaviateClient, tempClient)
 	port := config.GetConfig().Port
-	workflows.ExecuteWorkflow_StoreResumeToWeaviate(tempClient, "/home/ahsansaif/Downloads/AhsanResume202507.pdf")
 	log.Fatal(app.Listen(fmt.Sprintf(":%s", port)))
-
 }

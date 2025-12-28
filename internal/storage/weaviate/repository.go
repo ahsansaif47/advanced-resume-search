@@ -64,7 +64,7 @@ func (r *WeaviateRepository) VectorSearch(className, query string) (map[string]m
 				Name: "education { degree institution dates location }",
 			},
 			graphql.Field{
-				Name: "work_experience { company title dates responsibilities }",
+				Name: "work_experience { company title dates }",
 			},
 			graphql.Field{
 				Name: "skills",
@@ -77,5 +77,4 @@ func (r *WeaviateRepository) VectorSearch(className, query string) (map[string]m
 		Do(context.Background())
 
 	return response.Data, err
-
 }

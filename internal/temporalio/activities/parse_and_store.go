@@ -34,7 +34,7 @@ func (a *Activities) ParseAndStoreData(ctx context.Context, resumeText string) (
 	// NOTE: Sanitize the map before inserting data into weaviate..
 	resumeMapData = sanitizeMap(resumeMapData)
 
-	id, err := repo.AddResumeToDB("resume", resumeMapData)
+	id, err := repo.AddResumeToDB("Resume", resumeMapData)
 	if err != nil {
 		return "", fmt.Errorf("Error uploading resume: %s", err.Error())
 	}
