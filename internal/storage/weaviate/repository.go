@@ -2,6 +2,7 @@ package weaviate
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
@@ -58,13 +59,25 @@ func (r *WeaviateRepository) VectorSearch(className, query string) (map[string]m
 		WithNearText(r.Client.GraphQL().NearTextArgBuilder().WithConcepts([]string{query})).
 		WithFields(
 			graphql.Field{
-				Name: "personal_information { name title email phone github linkedin }",
+				Name: "summary",
 			},
 			graphql.Field{
-				Name: "education { degree institution dates location }",
+				Name: "personal_information { name title email phone linkedin github }",
 			},
 			graphql.Field{
-				Name: "work_experience { company title dates }",
+				Name: "education { institution degree dates }",
+			},
+			graphql.Field{
+				Name: "work_experience { company title dates description }",
+			},
+			graphql.Field{
+				Name: "projects { name description technologies link }",
+			},
+			graphql.Field{
+				Name: "certifications { name issuer date }",
+			},
+			graphql.Field{
+				Name: "publications { title publisher date link }",
 			},
 			graphql.Field{
 				Name: "skills",
@@ -73,8 +86,16 @@ func (r *WeaviateRepository) VectorSearch(className, query string) (map[string]m
 				Name: "_additional { id score distance }",
 			},
 		).
-		WithLimit(20).
+		WithLimit(10).
 		Do(context.Background())
 
+	gql_errros := []error{}
+	for _, resp_err := range response.Errors {
+		gql_errros = append(gql_errros, fmt.Errorf("GraphQL Error: %s", resp_err.Message))
+	}
+
+	if len(gql_errros) > 0 {
+		return nil, fmt.Errorf("GraphQL Errors: %v", gql_errros)
+	}
 	return response.Data, err
 }

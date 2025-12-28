@@ -1,0 +1,6 @@
+1. Deploy
+2. Nested keys aliasing
+3. Fix search endpoint error.
+4. Ratelimiting for Gemini inference endpoint...
+5. Keys rotation.
+6. Correct Weaviate connection ... Use a dep inside activities...

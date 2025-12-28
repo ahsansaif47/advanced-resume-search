@@ -77,7 +77,7 @@ func (s *WeaviateService) BatchUploadResume(batchResume []map[string]any) (int, 
 func (s *WeaviateService) VectorSearch(query string) (int, any, error) {
 	data, err := s.repo.VectorSearch(config.ClassName, query)
 	if err != nil {
-		return InternalServerError, nil, fmt.Errorf("Error searchinh: %s", err.Error())
+		return InternalServerError, nil, fmt.Errorf("Error searching: %s", err.Error())
 	}
 	return StatusOK, data, nil
 }

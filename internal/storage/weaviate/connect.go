@@ -68,11 +68,18 @@ func CreateSchema(c *weaviate.Client, className string) {
 		},
 		Properties: []*models.Property{
 			{
+				Name:     "summary",
+				DataType: schema.DataTypeText.PropString(),
+			},
+			{
 				Name:     "personal_information",
 				DataType: schema.DataTypeObject.PropString(),
 				NestedProperties: []*models.NestedProperty{
 					{Name: "name", DataType: schema.DataTypeText.PropString()},
 					{Name: "email", DataType: schema.DataTypeText.PropString()},
+					{Name: "phone", DataType: schema.DataTypeText.PropString()},
+					{Name: "github", DataType: schema.DataTypeText.PropString()},
+					{Name: "linkedin", DataType: schema.DataTypeText.PropString()},
 				},
 			},
 			{
@@ -91,12 +98,57 @@ func CreateSchema(c *weaviate.Client, className string) {
 					{Name: "company", DataType: schema.DataTypeText.PropString()},
 					{Name: "title", DataType: schema.DataTypeText.PropString()},
 					{Name: "dates", DataType: schema.DataTypeText.PropString()},
-					{Name: "description", DataType: schema.DataTypeText.PropString()},
+					{Name: "location", DataType: schema.DataTypeText.PropString()},
+					{Name: "description", DataType: schema.DataTypeStringArray.PropString()},
+					{Name: "responsibilities", DataType: schema.DataTypeStringArray.PropString()},
+					{Name: "achievements", DataType: schema.DataTypeStringArray.PropString()},
 				},
 			},
 			{
 				Name:     "skills",
 				DataType: schema.DataTypeStringArray.PropString(),
+			},
+			{
+				Name:     "languages",
+				DataType: schema.DataTypeStringArray.PropString(),
+			},
+			{
+				Name:     "projects",
+				DataType: schema.DataTypeObjectArray.PropString(),
+				NestedProperties: []*models.NestedProperty{
+					{Name: "name", DataType: schema.DataTypeText.PropString()},
+					{Name: "description", DataType: schema.DataTypeText.PropString()},
+					{Name: "technologies", DataType: schema.DataTypeStringArray.PropString()},
+					{Name: "link", DataType: schema.DataTypeText.PropString()},
+				},
+			},
+			{
+				Name:     "certifications",
+				DataType: schema.DataTypeObjectArray.PropString(),
+				NestedProperties: []*models.NestedProperty{
+					{Name: "name", DataType: schema.DataTypeText.PropString()},
+					{Name: "issuer", DataType: schema.DataTypeText.PropString()},
+					{Name: "date", DataType: schema.DataTypeText.PropString()},
+				},
+			},
+			{
+				Name:     "publications",
+				DataType: schema.DataTypeObjectArray.PropString(),
+				NestedProperties: []*models.NestedProperty{
+					{Name: "title", DataType: schema.DataTypeText.PropString()},
+					{Name: "publisher", DataType: schema.DataTypeText.PropString()},
+					{Name: "date", DataType: schema.DataTypeText.PropString()},
+					{Name: "link", DataType: schema.DataTypeText.PropString()},
+				},
+			},
+			{
+				Name:     "extra",
+				DataType: schema.DataTypeText.PropString(),
+				ModuleConfig: map[string]any{
+					"text2vec-transformers": map[string]any{
+						"skip": true, // do NOT vectorize raw JSON
+					},
+				},
 			},
 		},
 		VectorIndexType: "hnsw",

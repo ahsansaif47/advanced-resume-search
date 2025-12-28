@@ -35,7 +35,6 @@ func sanitizeValue(v any) any {
 	default:
 		return val
 	}
-
 }
 
 func sanitizeMap(m map[string]any) map[string]any {

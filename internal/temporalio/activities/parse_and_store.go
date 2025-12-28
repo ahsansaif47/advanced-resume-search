@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/ahsansaif47/advanced-resume/config"
 	"github.com/ahsansaif47/advanced-resume/internal/parser"
@@ -11,21 +12,25 @@ import (
 )
 
 func (a *Activities) ParseAndStoreData(ctx context.Context, resumeText string) (string, error) {
+	repo := weaviate.NewWeviateRepository(ctx, a.WeaviateClient)
+
 	// Clean data
 	cleanedData := parser.CleanJSON(resumeText)
 
+	log.Println("Cleaned resume data:", cleanedData)
+
 	// Parse into obj
-	data, err := parser.ParseResume([]byte(cleanedData))
+	data, err := parser.ParseResumeUpdated([]byte(cleanedData))
 	if err != nil {
 		return "", fmt.Errorf("Error parsing resume: %s", err.Error())
 	}
 
-	repo := weaviate.NewWeviateRepository(ctx, a.WeaviateClient)
-
 	var bytesData []byte
-	if bytesData, err = json.MarshalIndent(data, "", ""); err != nil {
+	if bytesData, err = json.MarshalIndent(data, "", " "); err != nil {
 		return "", fmt.Errorf("Error marshalling data: %s", err.Error())
 	}
+
+	log.Println("Parsed resume data:", string(bytesData))
 
 	var resumeMapData map[string]any
 	if err := json.Unmarshal(bytesData, &resumeMapData); err != nil {
