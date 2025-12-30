@@ -99,9 +99,7 @@ func CreateSchema(c *weaviate.Client, className string) {
 					{Name: "title", DataType: schema.DataTypeText.PropString()},
 					{Name: "dates", DataType: schema.DataTypeText.PropString()},
 					{Name: "location", DataType: schema.DataTypeText.PropString()},
-					{Name: "description", DataType: schema.DataTypeStringArray.PropString()},
 					{Name: "responsibilities", DataType: schema.DataTypeStringArray.PropString()},
-					{Name: "achievements", DataType: schema.DataTypeStringArray.PropString()},
 				},
 			},
 			{
@@ -129,6 +127,7 @@ func CreateSchema(c *weaviate.Client, className string) {
 					{Name: "name", DataType: schema.DataTypeText.PropString()},
 					{Name: "issuer", DataType: schema.DataTypeText.PropString()},
 					{Name: "date", DataType: schema.DataTypeText.PropString()},
+					{Name: "link", DataType: schema.DataTypeText.PropString()},
 				},
 			},
 			{

@@ -33,6 +33,8 @@ func main() {
 	weaviate.CreateSchema(weaviateClient, config.ClassName)
 
 	tempClient, errCh := temporalio.StartWorker()
+
+	// FIXME: Fix this temporal error catch and restarting logic...
 	go func(client client.Client) {
 		for err := range errCh {
 			log.Printf("Worker error: %v", err)

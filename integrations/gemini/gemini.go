@@ -55,7 +55,8 @@ func (g *GeminiClient) GetResponse(path string) (string, error) {
 	// Generate content WITH the file
 	result, err := g.client.Models.GenerateContent(
 		ctx,
-		"gemini-2.5-flash-lite",
+		// "gemini-2.5-flash-lite",
+		"gemini-3-flash-preview",
 		contents,
 		nil,
 	)

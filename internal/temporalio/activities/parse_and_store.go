@@ -17,10 +17,15 @@ func (a *Activities) ParseAndStoreData(ctx context.Context, resumeText string) (
 	// Clean data
 	cleanedData := parser.CleanJSON(resumeText)
 
-	log.Println("Cleaned resume data:", cleanedData)
+	// log.Println("Cleaned resume data:", cleanedData)
 
 	// Parse into obj
 	data, err := parser.ParseResumeUpdated([]byte(cleanedData))
+	// prettyStr, err := json.MarshalIndent(data, "", " ")
+	// if err != nil {
+
+	// }
+
 	if err != nil {
 		return "", fmt.Errorf("Error parsing resume: %s", err.Error())
 	}
@@ -38,7 +43,7 @@ func (a *Activities) ParseAndStoreData(ctx context.Context, resumeText string) (
 	}
 
 	// NOTE: Sanitize the map before inserting data into weaviate..
-	resumeMapData = sanitizeMap(resumeMapData)
+	// resumeMapData = sanitizeMap(resumeMapData)
 
 	id, err := repo.AddResumeToDB(config.ClassName, resumeMapData)
 	if err != nil {

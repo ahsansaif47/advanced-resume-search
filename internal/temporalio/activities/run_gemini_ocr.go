@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ahsansaif47/advanced-resume/integrations/gemini"
 	"google.golang.org/genai"
 )
 
@@ -14,11 +13,7 @@ import (
 func (a *Activities) RunGeminiInference(ctx context.Context, path string) (string, error) {
 
 	// var err error
-	genClient, err := gemini.NewGeminiClient()
-	if err != nil {
-		return "", err
-	}
-	resumeData, err := genClient.GetResponse(path) // 6s
+	resumeData, err := a.GenAIClient.GetResponse(path) // 6s
 	if err != nil {
 		if errors.Is(err, genai.APIError{}) {
 			// FIXME: Handle rate limit exceeded error

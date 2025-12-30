@@ -5,3 +5,5 @@ tmp
 resources
 
 internal/api/docs
+
+.github/copilot-instructions.md
