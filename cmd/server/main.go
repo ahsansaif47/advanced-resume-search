@@ -6,6 +6,7 @@ import (
 
 	"github.com/ahsansaif47/advanced-resume/config"
 	"github.com/ahsansaif47/advanced-resume/internal/api/router"
+	"github.com/ahsansaif47/advanced-resume/internal/models"
 	"github.com/ahsansaif47/advanced-resume/internal/storage/weaviate"
 	"github.com/ahsansaif47/advanced-resume/internal/temporalio"
 	"github.com/gofiber/fiber/v2"
@@ -30,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error connecting to weaviate: %s", err.Error())
 	}
-	weaviate.CreateSchema(weaviateClient, config.ClassName)
+	models.CreateSchema(weaviateClient, config.ClassName)
 
 	tempClient, errCh := temporalio.StartWorker()
 
