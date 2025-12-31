@@ -23,8 +23,9 @@ func (a *Activities) ParseAndStoreData(ctx context.Context, resumeText string) (
 	data, err := parser.ParseResumeUpdated([]byte(cleanedData))
 	// prettyStr, err := json.MarshalIndent(data, "", " ")
 	// if err != nil {
-
+	// 	return "", fmt.Errorf("Error marshalling data: %s", err.Error())``
 	// }
+	// log.Println("Parsed resume data:", data)
 
 	if err != nil {
 		return "", fmt.Errorf("Error parsing resume: %s", err.Error())
