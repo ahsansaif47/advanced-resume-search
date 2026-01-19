@@ -1,8 +1,12 @@
 # Build stage
 FROM golang:1.25-alpine AS builder
 
-# Install build dependencies including swag
-RUN apk add --no-cache git make swag
+# Install build dependencies
+RUN apk add --no-cache git make
+
+# Install swag CLI tool for Swagger documentation generation
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+ENV PATH="${PATH}:/root/go/bin"
 
 # Set working directory
 WORKDIR /app
