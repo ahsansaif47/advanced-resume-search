@@ -2,7 +2,7 @@
 FROM golang:1.25-alpine AS builder
 
 # Install build dependencies
-RUN apk add --no-cache git make
+RUN apk add --no-cache git make bash
 
 # Install swag CLI tool for Swagger documentation generation
 RUN go install github.com/swaggo/swag/cmd/swag@latest
